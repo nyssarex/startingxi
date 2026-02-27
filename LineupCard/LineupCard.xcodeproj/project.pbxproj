@@ -110,7 +110,7 @@
 			path = Rendering;
 			sourceTree = "<group>";
 		};
-		F00000000000000000000001 /* root */ = {
+		FA00000000000000000000AA /* root */ = {
 			isa = PBXGroup;
 			children = (
 				C00000000000000000000001 /* LineupCard */,
@@ -161,7 +161,7 @@
 				en,
 				Base,
 			);
-			mainGroup = F00000000000000000000001;
+			mainGroup = FA00000000000000000000AA /* root */;
 			productRefGroup = C00000000000000000000006 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
