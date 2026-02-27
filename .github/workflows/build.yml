@@ -7,8 +7,8 @@ on:
     branches: [ main, master ]
 
 jobs:
-  build:
-    name: Xcode Build (iOS Simulator)
+  build-and-screenshot:
+    name: Build + Screenshot
     runs-on: macos-14
 
     steps:
@@ -18,7 +18,10 @@ jobs:
       - name: Select Xcode 15.4
         run: sudo xcode-select -s /Applications/Xcode_15.4.app/Contents/Developer
 
-      - name: Build for iPhone Simulator (x86_64 for Appetize)
+      - name: Show available simulators
+        run: xcrun simctl list devices available | grep "iPhone 15"
+
+      - name: Build for simulator
         run: |
           xcodebuild \
             -project LineupCard/LineupCard.xcodeproj \
@@ -29,20 +32,38 @@ jobs:
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
-            ARCHS=x86_64 \
-            ONLY_ACTIVE_ARCH=NO \
             build
 
-      - name: Find built .app
+      - name: Verify .app exists
         run: |
-          echo "--- Searching for .app ---"
-          find build -name "*.app" -type d
-          echo "--- DerivedData products ---"
-          ls build/Build/Products/ || echo "Products dir not found"
+          ls build/Build/Products/Debug-iphonesimulator/
+          ls build/Build/Products/Debug-iphonesimulator/LineupCard.app/
 
-      - name: Upload .app as artifact
+      - name: Boot simulator
+        run: |
+          UDID=$(xcrun simctl list devices available | grep "iPhone 15 (" | grep -v "Plus\|Pro\|Max" | head -1 | grep -oE '[0-9A-F-]{36}')
+          echo "Booting: $UDID"
+          echo "SIM_UDID=$UDID" >> $GITHUB_ENV
+          xcrun simctl boot "$UDID"
+          xcrun simctl bootstatus "$UDID" -b
+
+      - name: Install app
+        run: |
+          xcrun simctl install "$SIM_UDID" build/Build/Products/Debug-iphonesimulator/LineupCard.app
+
+      - name: Launch app and wait
+        run: |
+          xcrun simctl launch "$SIM_UDID" com.lineupcard.app
+          sleep 12
+
+      - name: Take screenshot
+        run: |
+          xcrun simctl io "$SIM_UDID" screenshot screenshot-home.png
+          echo "Screenshot taken"
+
+      - name: Upload screenshots
         uses: actions/upload-artifact@v4
         with:
-          name: LineupCard-Simulator
-          path: build/Build/Products/Debug-iphonesimulator/LineupCard.app
+          name: App-Screenshots
+          path: screenshot-home.png
           retention-days: 7
