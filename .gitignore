@@ -1,0 +1,24 @@
+# Xcode build artifacts
+build/
+DerivedData/
+*.xcarchive
+*.ipa
+
+# Xcode user data (local settings, breakpoints, etc.)
+*.xcodeproj/xcuserdata/
+*.xcworkspace/xcuserdata/
+
+# Swift Package Manager
+.build/
+*.resolved
+
+# OS generated
+.DS_Store
+Thumbs.db
+
+# Environment / secrets
+.env
+
+# Template reference images (not needed in repo)
+template*.png
+template*.jpg
