@@ -31,14 +31,16 @@ jobs:
             CODE_SIGNING_ALLOWED=NO \
             build
 
-      - name: Zip .app for Appetize
+      - name: Find built .app
         run: |
-          cd build/Build/Products/Debug-iphonesimulator/
-          zip -r LineupCard.zip LineupCard.app
+          echo "--- Searching for .app ---"
+          find build -name "*.app" -type d
+          echo "--- DerivedData products ---"
+          ls build/Build/Products/ || echo "Products dir not found"
 
-      - name: Upload simulator build
+      - name: Upload .app as artifact
         uses: actions/upload-artifact@v4
         with:
           name: LineupCard-Simulator
-          path: build/Build/Products/Debug-iphonesimulator/LineupCard.zip
+          path: build/Build/Products/Debug-iphonesimulator/LineupCard.app
           retention-days: 7
